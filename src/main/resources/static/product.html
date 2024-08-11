@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 0px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            background-color: #333;
+            padding: 10px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+        }
+
+        nav a:hover {
+            background-color: #575757;
+        }
+
+        .product-detail {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px auto;
+            max-width: 600px;
+        }
+
+        .product-detail img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .actions button, .actions a {
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+        }
+
+        .update {
+            background-color: #007bff;
+        }
+
+        .delete {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="addproduct.html">Add Product</a>
+    </nav>
+    
+    <div id="product-details" class="product-detail"></div>
+    <div class="actions">
+        <a class="update" id="update-product">Update Product</a>
+        <button class="delete" id="delete-product">Delete Product</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            
+            fetch(`http://localhost:8080/api/product/${productId}`)
+                .then(response => response.json())
+                .then(product => {
+                    const productDetails = document.getElementById('product-details');
+                    productDetails.innerHTML = `
+                        <img src="data:${product.imageType};base64,${product.imageData}" alt="${product.imageName}">
+                        <p>${product.vehicle.charAt(0).toUpperCase() + product.vehicle.substr(1).toLowerCase()}</p>
+                        <h2>${(product.vehicleName).toUpperCase()}</h2>
+                        <h3><i>Brand: ~${product.brand}</i></h3>
+                        <p><strong>Description: </strong>${product.description}</p>
+                        <p><strong>Location: </strong>${product.location}</p>
+                        <p><strong>Owner: </strong>${product.owner}</p>
+                        <p><strong>Quantity: </strong>${product.quantity}</p>
+                        <p><strong>Avaliable: </strong>${product.available===true?"Yes":"NO"}</p>
+                        <p><strong>Publish Date: </strong>${new Date(product.releaseDate).toLocaleDateString()}</p>
+                        <p><strong>Price:</strong> ₹${product.price}</p>
+                    `;
+                    
+                    document.getElementById('update-product').href = `updateproduct.html?id=${product.id}`;
+                    
+                    document.getElementById('delete-product').addEventListener('click', () => {
+                        if (confirm('Are you sure you want to delete this product?')) {
+                            fetch(`http://localhost:8080/api/product/${productId}`, {
+                                method: 'DELETE'
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    alert('Product deleted successfully!');
+                                    window.location.href = `index.html`;
+                                } else {
+                                    alert('Error deleting product');
+                                }
+                            })
+                            .catch(error => console.error('Error deleting product:', error));
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching product details:', error));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Product</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 0px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            background-color: #333;
+            padding: 10px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+        }
+
+        nav a:hover {
+            background-color: #575757;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 10px;
+        }
+
+        input, textarea {
+            padding: 10px;
+            margin-top: 5px;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="addproduct.html">Add Product</a>
+    </nav>
+    
+    <form id="update-product-form" enctype="multipart/form-data">
+        <label for="vehicle">Vehicle</label>
+        <input type="text" id="vehicle" name="vehicle" required>
+
+        <label for="vehicleName">Vehicle Name</label>
+        <input type="text" id="vehicleName" name="vehicleName" required>
+
+        <label for="brand">Brand</label>
+        <input type="text" id="brand" name="brand" required>
+
+        <label for="description">Description</label>
+        <textarea id="description" name="description" required></textarea>
+
+        <label for="price">Price</label>
+        <input type="number" step="0.01" id="price" name="price" required>
+
+        <label for="releaseDate">Release Date</label>
+        <input type="date" id="releaseDate" name="releaseDate" required>
+
+        <label for="available">Available</label>
+        <input type="checkbox" id="available" name="available">
+
+        <label for="quantity">Quantity</label>
+        <input type="number" id="quantity" name="quantity" required>
+
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" required>
+
+        <label for="owner">Owner</label>
+        <input type="text" id="owner" name="owner" required>
+
+        <label for="image">Image</label>
+        <input type="file" id="image" name="image" accept="image/*">
+
+        <img id="current-image" alt="Current product image">
+
+        <button type="submit">Update Product</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            fetch(`http://localhost:8080/api/product/${productId}`)
+                .then(response => response.json())
+                .then(product => {
+                    document.getElementById('vehicle').value = product.vehicle;
+                    document.getElementById('vehicleName').value = product.vehicleName;
+                    document.getElementById('brand').value = product.brand;
+                    document.getElementById('description').value = product.description;
+                    document.getElementById('price').value = product.price;
+                    document.getElementById('releaseDate').value = product.releaseDate.split('T')[0];
+                    document.getElementById('available').checked = product.available;
+                    document.getElementById('quantity').value = product.quantity;
+                    document.getElementById('location').value = product.location;
+                    document.getElementById('owner').value = product.owner;
+                    document.getElementById('current-image').src = `data:${product.imageType};base64,${product.imageData}`;
+                })
+                .catch(error => console.error('Error fetching product:', error));
+
+            document.getElementById('update-product-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const formData = new FormData(event.target);
+                const product = {
+                    vehicle: formData.get('vehicle'),
+                    vehicleName: formData.get('vehicleName'),
+                    brand: formData.get('brand'),
+                    description: formData.get('description'),
+                    price: formData.get('price'),
+                    releaseDate: formData.get('releaseDate'),
+                    available: formData.get('available') === 'on',
+                    quantity: formData.get('quantity'),
+                    location: formData.get('location'),
+                    owner: formData.get('owner')
+                };
+
+                formData.append('product', JSON.stringify(product));
+
+                fetch(`http://localhost:8080/api/products/add/${productId}`, {
+                    method: 'PUT',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    alert('Product updated successfully!');
+                    window.location.href = `product.html?id=${productId}`;
+                })
+                .catch(error => console.error('Error updating product:', error));
+            });
+        });
+    </script>
+</body>
+</html>

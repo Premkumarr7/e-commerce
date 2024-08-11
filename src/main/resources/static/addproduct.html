@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 0px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            background-color: #333;
+            padding: 10px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+        }
+
+        nav a:hover {
+            background-color: #575757;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 10px;
+        }
+
+        input, textarea {
+            padding: 10px;
+            margin-top: 5px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="addproduct.html">Add Product</a>
+    </nav>
+
+    <form id="product-form" enctype="multipart/form-data">
+        <label for="vehicle">Vehicle</label>
+        <input type="text" id="vehicle" name="vehicle" required>
+
+        <label for="vehicleName">Vehicle Name</label>
+        <input type="text" id="vehicleName" name="vehicleName" required>
+
+        <label for="brand">Brand</label>
+        <input type="text" id="brand" name="brand" required>
+
+        <label for="description">Description</label>
+        <textarea id="description" name="description" required></textarea>
+
+        <label for="price">Price</label>
+        <input type="number" step="0.01" id="price" name="price" required>
+
+        <label for="releaseDate">Release Date</label>
+        <input type="date" id="releaseDate" name="releaseDate" required>
+
+        <label for="available">Available</label>
+        <input type="checkbox" id="available" name="available">
+
+        <label for="quantity">Quantity</label>
+        <input type="number" id="quantity" name="quantity" required>
+
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" required>
+
+        <label for="owner">Owner</label>
+        <input type="text" id="owner" name="owner" required>
+
+        <label for="image">Image</label>
+        <input type="file" id="image" name="image" accept="image/*" required>
+
+        <button type="submit">Add Product</button>
+    </form>
+
+    <script>
+        document.getElementById('product-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const product = {
+                vehicle: formData.get('vehicle'),
+                vehicleName: formData.get('vehicleName'),
+                brand: formData.get('brand'),
+                description: formData.get('description'),
+                price: formData.get('price'),
+                releaseDate: formData.get('releaseDate'),
+                available: formData.get('available') === 'on',
+                quantity: formData.get('quantity'),
+                location: formData.get('location'),
+                owner: formData.get('owner'),
+            };
+
+            formData.append('product', JSON.stringify(product));
+
+            fetch('http://localhost:8080/api/products/add', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert(data);
+                window.location.href = `index.html`; // Redirect to home or product list page
+            })
+            .catch(error => console.error('Error adding product:', error));
+        });
+    </script>
+</body>
+</html>

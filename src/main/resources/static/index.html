@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 0px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            background-color: #333;
+            padding: 10px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+        }
+
+        nav a:hover {
+            background-color: #575757;
+        }
+
+        #product-list {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            margin: 50px;
+        }
+
+        .product {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 30px;
+            margin: 36px;
+            width: calc(25% - 40px);
+            cursor: pointer;
+        }
+
+        .product p{
+            font-style: italic;
+        }
+        .product img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="addproduct.html">Add Product</a>
+    </nav>
+
+    <div id="product-list"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('http://localhost:8080/api/products')
+                .then(response => response.json())
+                .then(data => {
+                    const productList = document.getElementById('product-list');
+                    data.forEach(product => {
+                        const productDiv = document.createElement('div');
+                        productDiv.className = 'product';
+                        productDiv.innerHTML = `
+                            <img src="data:${product.imageType};base64,${product.imageData}" alt="${product.imageName}">
+                            <h4>${product.vehicle.charAt(0).toUpperCase() + product.vehicle.substr(1).toLowerCase()}</h4>
+                            <h3>${product.vehicleName}</h3>
+                            <p>~${product.brand}</p>
+                            <p><strong>Price:</strong> ₹${product.price}</p>
+                        `;
+                        productDiv.addEventListener('click', () => {
+                            window.location.href = `product.html?id=${product.id}`;
+                        });
+                        productList.appendChild(productDiv);
+                    });
+                })
+                .catch(error => console.error('Error fetching products:', error));
+        });
+    </script>
+</body>
+</html>
